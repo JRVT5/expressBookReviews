@@ -3,6 +3,8 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const baseUrl = "https://jbroberts-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai";
+const axios = require('axios');
 
 public_users.post("/register", (req,res) => {
     const username = req.body.username;
@@ -20,19 +22,26 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    let bookList = [];
-    Object.keys(books).forEach(key => {
-        const value = books[key];
-        bookList.push(JSON.stringify(key), JSON.stringify(value));
+    axios({
+        url: baseUrl,
+        method: "get"
+    }).then(()=> {
+        let bookList = [];
+        Object.keys(books).forEach(key => {
+            const value = books[key];
+            bookList.push(JSON.stringify(key), JSON.stringify(value));
+        });
+        res.send(bookList)
+    }).catch((err) => {
+        res.send(err)
     });
-    res.send(bookList);
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn;
-  const getBook = Object.values(books)[isbn - 1];
+  const getBook = books[isbn];
   res.send(JSON.stringify(getBook));
  });
   
@@ -61,7 +70,7 @@ public_users.get('/title/:title',function (req, res) {
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
     const isbn = req.params.isbn;
-    const getBook = books[isbn - 1];
+    const getBook = books[isbn]
     const review = getBook.reviews;
     res.send(JSON.stringify(review));
 });
