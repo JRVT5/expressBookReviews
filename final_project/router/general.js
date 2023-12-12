@@ -3,7 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-const baseUrl = "https://jbroberts-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai";
+const baseUrl = "https://jbroberts-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai";
 const axios = require('axios');
 
 public_users.post("/register", (req,res) => {
@@ -40,30 +40,51 @@ public_users.get('/',function (req, res) {
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
-  const isbn = req.params.isbn;
-  const getBook = books[isbn];
-  res.send(JSON.stringify(getBook));
+  axios({
+    url: baseUrl + '/isbn/' + req.params.isbn,
+    method: 'get'
+  }).then(()=>{
+    const isbn = req.params.isbn;
+    const getBook = books[isbn];
+    res.send(JSON.stringify(getBook));
+  }).catch(err=> {
+    res.send(err)
+  })
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  const authorBody = req.params.author;
-  Object.keys(books).forEach(key => {
-      const author = books[key].author;
-      if  (author == authorBody) {
-          res.send(JSON.stringify(books[key]));
-      }
-  })
+    axios({
+        url: baseUrl + '/author/' + req.params.author,
+        method: 'get'
+    }).then(()=> {
+        const authorBody = req.params.author;
+        Object.keys(books).forEach(key => {
+            const author = books[key].author;
+            if  (author == authorBody) {
+                res.send(JSON.stringify(books[key]));
+            }
+        })
+    }).catch(err=>{
+        res.send(err);
+    })
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-    const titleBody = req.params.title;
-    Object.keys(books).forEach(key => {
-        const title = books[key].title;
-        if  (title == titleBody) {
-            res.send(JSON.stringify(books[key]));
-        }
+    axios({
+        url: baseUrl + '/title/' + req.params.title,
+        method: 'get'
+    }).then(()=>{
+        const titleBody = req.params.title;
+        Object.keys(books).forEach(key => {
+            const title = books[key].title;
+            if  (title == titleBody) {
+                res.send(JSON.stringify(books[key]));
+            }
+        })
+    }).catch(err=> {
+        res.send(err)
     })
 });
 
